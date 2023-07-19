@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                // Clean and build the project using Maven
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // Run unit tests
+                sh 'mvn test'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Deploy the application to the testing environment
+                // Replace the below command with your deployment script/commands
+                sh 'scp target/my-app.war user@test-server:/opt/apps/'
+            }
+        }
+
+        stage('Deploy to Production') {
+            steps {
+                // Deploy the application to the production environment
+                // Replace the below command with your deployment script/commands
+                sh 'scp target/my-app.war user@prod-server:/opt/apps/'
+            }
+        }
+    }
+
+    post {
+        success {
+            // If the pipeline succeeds, notify the team via email
+            emailext body: 'The CI/CD pipeline has been successful. You can now test the application in the testing environment.',
+                    subject: 'CI/CD Pipeline Success',
+                    to: 'team@example.com'
+        }
+
+        failure {
+            // If the pipeline fails, send an email with the failure notification
+            emailext body: 'The CI/CD pipeline has failed. Please check the logs and fix the issues.',
+                    subject: 'CI/CD Pipeline Failure',
+                    to: 'team@example.com'
+        }
+    }
+}
