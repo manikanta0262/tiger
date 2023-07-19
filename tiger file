@@ -1,1 +1,58 @@
-hai this is tiger 
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Clone the repository
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // Build your application (e.g., using Maven, Gradle, etc.)
+                // Replace the command with your actual build command
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // Run tests (unit tests, integration tests, etc.)
+                // Replace the command with your actual test command
+                sh 'mvn test'
+            }
+        }
+
+        stage('Dockerize') {
+            steps {
+                // Build a Docker image of your application
+                // Replace "my-app" with your Docker image name and tag
+                sh 'docker build -t my-app:latest .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Push the Docker image to a container registry (e.g., Docker Hub, AWS ECR)
+                // Replace "my-app" with your Docker image name and tag
+                sh 'docker push my-app:latest'
+
+                // Deploy the Docker image to your production server
+                // Replace the commands with your actual deployment steps (e.g., using Kubernetes, Docker Compose, etc.)
+                sh 'ssh user@production-server "docker-compose pull && docker-compose up -d"'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'CI/CD pipeline succeeded. Application is deployed.'
+        }
+        failure {
+            echo 'CI/CD pipeline failed. Check the logs for issues.'
+        }
+    }
+}
